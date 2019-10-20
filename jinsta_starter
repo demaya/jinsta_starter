@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Sleep random time between 0 and the time you set
+MAX_SLEEP_SECONDS=10
+# Folder where your script is 
+JINSTA_PATH='/Users/demaya/git/jinsta_bot'
+# The command to execute in the above folder
+EXECUTE='node index.js'
+# PID file so there is only one jinsta_starter at one time
+PID_FILE='jinsta_starter.pid'
+
+if test -f ${PID_FILE} 
+then 
+    echo "$(date +%F_%H:%M:%S): jinsta already running / error happend. investigate! exiting."| /usr/bin/tee -a jinsta_starter.log
+    exit 1
+else 
+    echo $$ > ${PID_FILE}
+fi
+
+echo "$(date +%F_%H:%M:%S): jinsta start script running"
+
+SLEEP_SECONDS=`expr $RANDOM % $MAX_SLEEP_SECONDS`
+echo "$(date +%F_%H:%M:%S): Sleeping now for $SLEEP_SECONDS" | /usr/bin/tee -a jinsta_starter.log
+sleep $SLEEP_SECONDS
+echo "$(date +%F_%H:%M:%S): Sleeping is over, let's start jinsta" | /usr/bin/tee -a jinsta_starter.log
+
+cd ${JINSTA_PATH}
+eval ${EXECUTE} | /usr/bin/tee -a jinsta_starter.log
+
+echo "$(date +%F_%H:%M:%S): Runtime was $SECONDS seconds ($(($SECONDS / 60)) minutes)" | /usr/bin/tee -a jinsta_starter.log
+
+rm ${PID_FILE}
